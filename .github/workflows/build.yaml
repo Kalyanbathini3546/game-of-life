@@ -32,7 +32,7 @@ jobs:
       - name: build with maven
         run: mvn clean install
 
-      - name: deploy war to tomcat
+      - name: deploy .war to tomcat
         run: |
               WAR_FILE=$(ls gameoflife_web/target/*.war | head -n 1)
               APP_NAME=gameoflife
