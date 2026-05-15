@@ -22,7 +22,7 @@ jobs:
     
         
       - name: install maven
-        run: yum install maven -y
+        run: sudo yum install maven -y
 
       - name: Cache Maven packages
         uses: actions/cache@v4
