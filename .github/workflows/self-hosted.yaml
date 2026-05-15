@@ -1,0 +1,49 @@
+name: gameoflife-self-hosted
+on: 
+  push:
+    branches:
+      - main
+  pull_request:     
+  workflow_dispatch: 
+
+jobs:
+  deploy-game-of-life:
+    runs-on: self-hosted
+
+    steps:
+      - name: checkout to repo
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'         # You can use '8' or '1.8'
+          distribution: 'temurin'    # Eclipse Temurin is the most common successor to AdoptOpenJDK
+    
+        
+      - name: install maven
+        run: yum install maven -y
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+            
+      - name: build mvn 
+        run: mvn clean install
+
+      - name: deploy to tomcat
+        run: |
+              WAR_FILE=$(ls gameoflife-web/*.war | head -n 1)
+              APP_NAME=selfhostedapp
+              curl -u "${{ secrets.TOMCAT_USERNAME }}:${{ secrets.TOMCAT_PASSWORD }}" \
+              --upload-file "$WAR_FILE" \
+              "http://${{ secrets.TOMCAT_HOST }}:8081/manager/text/deploy?path=/$APP_NAME&update=true"              
+
+
+        
+
+            
